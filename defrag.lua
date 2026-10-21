@@ -27,21 +27,21 @@ local evenlyDistribute = true
 -- default is 0.05s, or a single game tick
 local tick = 0.05
 
-local mainBridge = peripheral.wrap("me_bridge_0")
-local bufferBridge = peripheral.wrap("me_bridge_1")
-local insertionBridge = peripheral.wrap("me_bridge_2")
+local mainBridge = peripheral.wrap("me_bridge_3")
+local bufferBridge = peripheral.wrap("me_bridge_5")
+local insertionBridge = peripheral.wrap("me_bridge_4")
 
-local bufferInterfaceId = "ae2:interface_1"
-local insertionInterfaceId = "ae2:interface_2"
+local bufferInterfaceId = "ae2:interface_3"
+local insertionInterfaceId = "ae2:interface_4"
 
-local insertionDrive = peripheral.wrap("ae2:drive_5")
+local insertionDrive = peripheral.wrap("ae2:drive_10")
 
 -- all storage drives on the main network, along with their coordinates
 local drives = {
 	[{x = 3288, y = 66, z = -5005}] = peripheral.wrap("ae2:drive_6"),
 	[{x = 3287, y = 66, z = -5005}] = peripheral.wrap("ae2:drive_7"),
-	[{x = 3288, y = 65, z = -5005}] = peripheral.wrap("ae2:drive_8"),
-	[{x = 3287, y = 65, z = -5005}] = peripheral.wrap("ae2:drive_9"),
+	[{x = 3288, y = 65, z = -5005}] = peripheral.wrap("ae2:drive_11"),
+	[{x = 3287, y = 65, z = -5005}] = peripheral.wrap("ae2:drive_12"),
 }
 
 ----- 							END OF CONFIG                         -----
@@ -134,6 +134,16 @@ function cellData(drive, slot, cell, cost)
 	}
 end
 
+function cellDataKey(data)
+	return data.maxBytes .. "/" 
+		.. data.maxTypes .. "/" 
+		.. data.usedBytes .. "/" 
+		.. data.freeBytes .. "/" 
+		.. data.freeAfterInsertion .. "/" 
+		.. data.cost .. "/"
+		.. data.slot
+end
+
 function removeLowestCost(candiates)
 	local bestCell
 	for _, candiate in pairs(candiates) do
@@ -166,7 +176,7 @@ function findBestCell(count, exclude)
 			local cost = math.ceil(count/8) + cell.bytesPerType
 			local data = cellData(drive, slot, cell, cost)
 			updateTask("Finding best cell", colors.lightGray, 100 * (cellCount/totalCells))
-			if cost <= data.freeBytes and exclude[data] == nil then 
+			if cost <= data.freeBytes and exclude[cellDataKey(data)] == nil then 
 				candiates[#candiates + 1] = data
 			end
 		end
@@ -225,19 +235,24 @@ function tryCells(count)
 			updateTask("Verifying cell", colors.lightGray, 50)
 		end
 
-		if not cell or not verifyCell(cell) then
-			if cell then exclude[cell] = true end
-			cell = nil
+		if not cell then
 			returnCellAndPrintError(cell, count)
+			cell = nil
+			candiates = findBestCell(count, exclude)
+		elseif not verifyCell(cell) then
+			returnCell(cell)
+			exclude[cellDataKey(cell)] = true
+			cell = nil
+			sleep(tick)
 			candiates = findBestCell(count, exclude)
 		end
-		
 	end
 	return cell
 end
 
 function defrag(item)
-	drawText(2, 8, colors.white, "Current Item:" .. item.name)
+	clearLine(8)
+	drawText(2, 8, item.name, colors.lightGray, colors.black)
 	moveToBuffer(item)
 	local cell = tryCells(item.count)
 	importItem(item)
