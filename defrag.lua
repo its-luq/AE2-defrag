@@ -7,7 +7,7 @@
 
 local monitor = peripheral.wrap("top") 
 
-zlocal monitorDelay = false -- 0.1
+local monitorDelay = false -- 0.1
 
 -- how long we should wait for a new drive to be inserted before trying again
 local newDriveWait = 10
