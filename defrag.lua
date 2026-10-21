@@ -39,9 +39,9 @@ local insertionDrive = peripheral.wrap("ae2:drive_5")
 -- all storage drives on the main network, along with their coordinates
 local drives = {
 	[{x = 3288, y = 66, z = -5005}] = peripheral.wrap("ae2:drive_6"),
-	[{x = 3287, y = 66, z = -5005}}] = peripheral.wrap("ae2:drive_7"),
+	[{x = 3287, y = 66, z = -5005}] = peripheral.wrap("ae2:drive_7"),
 	[{x = 3288, y = 65, z = -5005}] = peripheral.wrap("ae2:drive_8"),
-	[{x = 3287, y = 65, z = -5005}}] = peripheral.wrap("ae2:drive_9"),
+	[{x = 3287, y = 65, z = -5005}] = peripheral.wrap("ae2:drive_9"),
 }
 
 ----- 							END OF CONFIG                         -----
